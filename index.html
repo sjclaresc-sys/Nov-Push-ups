@@ -1,606 +1,910 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>100 Push-Ups November Challenge</title>
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        brand: {
-                            50: '#f0fdf4',
-                            500: '#22c55e',
-                            600: '#16a34a',
-                            700: '#15803d',
-                        },
-                        accent: {
-                            500: '#3b82f6',
-                            600: '#2563eb',
-                        }
-                    }
-                }
-            }
-        }
-    </script>
-    <!-- FontAwesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <!-- Canvas Confetti -->
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            -webkit-tap-highlight-color: transparent;
-        }
-        .custom-scrollbar::-webkit-scrollbar {
-            width: 4px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.05);
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 4px;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Workout &amp; Rep Challenge</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --primary: #38bdf8;
+      --primary-hover: #0284c7;
+      --success: #22c55e;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --border: #334155;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      padding: 16px;
+      max-width: 640px;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 16px;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      color: var(--primary);
+    }
+
+    .subtitle {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .card {
+      background-color: var(--card-bg);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 14px;
+      border: 1px solid var(--border);
+    }
+
+    .exercise-bar {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 6px;
+      margin-bottom: 14px;
+      align-items: center;
+    }
+
+    .exercise-pill {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 7px 14px;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      white-space: nowrap;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .exercise-pill.active {
+      background-color: var(--primary);
+      color: #0f172a;
+      border-color: var(--primary);
+    }
+
+    .exercise-pill .del-ex {
+      font-size: 0.75rem;
+      opacity: 0.7;
+      cursor: pointer;
+      padding: 0 2px;
+    }
+
+    .exercise-pill .del-ex:hover {
+      opacity: 1;
+      color: var(--danger);
+    }
+
+    .add-ex-btn {
+      background-color: transparent;
+      border: 1px dashed var(--primary);
+      color: var(--primary);
+    }
+
+    .pace-card {
+      background: linear-gradient(135deg, rgba(56, 189, 248, 0.12), rgba(34, 197, 94, 0.12));
+      border: 1px solid var(--primary);
+      text-align: center;
+    }
+
+    .pace-card .stat-value {
+      color: #ffffff;
+      font-size: 2rem;
+      font-weight: 700;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .stat-card {
+      background-color: rgba(255, 255, 255, 0.03);
+      padding: 12px;
+      border-radius: 10px;
+      text-align: center;
+      border: 1px solid var(--border);
+    }
+
+    .stat-value {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .stat-label {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-top: 2px;
+    }
+
+    .quick-add {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    button {
+      background-color: var(--primary);
+      color: #0f172a;
+      border: none;
+      padding: 10px;
+      border-radius: 8px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    button:active {
+      transform: scale(0.98);
+    }
+
+    button.btn-secondary {
+      background-color: transparent;
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+
+    .custom-input-group {
+      display: flex;
+      gap: 8px;
+    }
+
+    input[type="number"],
+    input[type="text"] {
+      flex: 1;
+      background-color: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 10px;
+      border-radius: 8px;
+      font-size: 0.95rem;
+    }
+
+    .calendar-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .calendar-title-wrap {
+      text-align: center;
+      flex: 1;
+    }
+
+    .calendar-nav-group {
+      display: flex;
+      gap: 6px;
+    }
+
+    .calendar-nav-btn {
+      background-color: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 6px 10px;
+      border-radius: 8px;
+      font-size: 0.82rem;
+    }
+
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 6px;
+      touch-action: pan-y;
+    }
+
+    .weekday-header {
+      text-align: center;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      padding-bottom: 4px;
+    }
+
+    .day-cell {
+      min-height: 46px;
+      background-color: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.78rem;
+      cursor: pointer;
+      padding: 2px;
+    }
+
+    .day-cell.empty {
+      background-color: transparent;
+      border-color: transparent;
+      cursor: default;
+    }
+
+    .day-cell.complete {
+      background-color: rgba(34, 197, 94, 0.2);
+      border-color: var(--success);
+    }
+
+    .day-cell.partial {
+      background-color: rgba(245, 158, 11, 0.2);
+      border-color: var(--warning);
+    }
+
+    .day-cell.selected {
+      outline: 2px solid var(--primary);
+      outline-offset: 1px;
+    }
+
+    .day-num {
+      font-weight: 700;
+    }
+
+    .day-count {
+      font-size: 0.65rem;
+      color: var(--text-muted);
+    }
+
+    .logs-list {
+      max-height: 160px;
+      overflow-y: auto;
+      margin-top: 8px;
+    }
+
+    .log-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 7px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.88rem;
+    }
+
+    .btn-delete {
+      background: transparent;
+      color: var(--danger);
+      padding: 2px 6px;
+      font-size: 0.82rem;
+    }
+
+    .file-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .file-actions button,
+    .file-actions label {
+      flex: 1;
+      text-align: center;
+      font-size: 0.85rem;
+      padding: 10px;
+      border-radius: 8px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    input[type="file"] {
+      display: none;
+    }
+
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background-color: rgba(15, 23, 42, 0.85);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      z-index: 50;
+    }
+
+    .modal-overlay.hidden {
+      display: none;
+    }
+
+    .modal-box {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+      width: 100%;
+      max-width: 380px;
+    }
+
+    .field-group {
+      margin-top: 12px;
+    }
+
+    .field-group label {
+      display: block;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    .modal-actions button {
+      flex: 1;
+    }
+  </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-between pb-10">
+<body>
+  <header>
+    <h1>Workout &amp; Rep Challenge</h1>
+    <div class="subtitle">Multi-Exercise Tracker &amp; Full Calendar</div>
+  </header>
 
-    <!-- Header / Navbar -->
-    <header class="sticky top-0 z-30 bg-slate-900/80 backdrop-blur-md border-b border-slate-800 px-4 py-3 sm:px-6">
-        <div class="max-w-md mx-auto flex justify-between items-center">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center text-slate-950 font-black shadow-lg shadow-emerald-500/20">
-                    <i class="fa-solid font-bold text-lg fa-bolt"></i>
-                </div>
-                <div>
-                    <h1 class="font-extrabold text-base sm:text-lg tracking-tight bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent">NOV 100 CHALLENGE</h1>
-                    <p class="text-xs text-emerald-400 font-medium flex items-center gap-1">
-                        <span class="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                        Daily Target: 100 Push-ups
-                    </p>
-                </div>
-            </div>
-            <button id="reset-btn" title="Reset Data" class="p-2 text-slate-400 hover:text-rose-400 hover:bg-slate-800 rounded-lg transition-colors">
-                <i class="fa-solid fa-rotate-right text-lg"></i>
-            </button>
-        </div>
-    </header>
+  <div class="exercise-bar" id="exerciseBar"></div>
 
-    <!-- Main Container -->
-    <main class="max-w-md mx-auto w-full px-4 pt-4 flex-1 flex flex-col gap-5">
-        
-        <!-- Catch-Up Pace Banner -->
-        <div id="pace-banner" class="bg-gradient-to-r from-amber-500/10 via-emerald-500/10 to-teal-500/10 border border-amber-500/30 p-4 rounded-2xl shadow-xl flex items-center gap-3.5">
-            <div class="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 shrink-0">
-                <i class="fa-solid fa-calculator text-lg"></i>
-            </div>
-            <div class="flex-1">
-                <div class="flex justify-between items-center">
-                    <span class="text-[11px] font-bold uppercase tracking-wider text-amber-400">Pace Adjuster</span>
-                    <span id="remaining-days-tag" class="text-[10px] font-semibold bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-full">0 days left</span>
-                </div>
-                <p id="pace-target-text" class="text-xs font-semibold text-slate-200 mt-0.5">
-                    To hit 3,000 total, you need <span id="pace-target-count" class="text-amber-400 font-extrabold text-sm">100</span> push-ups/day starting today!
-                </p>
-            </div>
-        </div>
+  <div class="card pace-card">
+    <div class="stat-label" id="paceLabel">Daily Target Pace</div>
+    <div class="stat-value" id="paceTarget">0</div>
+    <div class="subtitle" id="paceSubtitle" style="color: #cbd5e1;"></div>
+  </div>
 
-        <!-- Summary Cards Grid -->
-        <div class="grid grid-cols-2 gap-3">
-            <!-- Monthly Progress Card -->
-            <div class="bg-slate-900/90 border border-slate-800 p-4 rounded-2xl relative overflow-hidden shadow-xl">
-                <div class="flex items-center justify-between mb-2">
-                    <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">Month Progress</span>
-                    <i class="fa-solid fa-trophy text-amber-400 text-sm"></i>
-                </div>
-                <div class="flex items-baseline gap-1">
-                    <span id="monthly-total" class="text-2xl font-black text-white">0</span>
-                    <span class="text-xs text-slate-400 font-medium">/ 3000</span>
-                </div>
-                <div class="w-full bg-slate-800 h-2 rounded-full mt-3 overflow-hidden">
-                    <div id="monthly-bar" class="bg-gradient-to-r from-emerald-500 to-teal-400 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
-                </div>
-                <p id="remaining-total-text" class="text-[10px] text-slate-400 mt-2 font-medium">3,000 remaining</p>
-            </div>
-
-            <!-- Current Streak Card -->
-            <div class="bg-slate-900/90 border border-slate-800 p-4 rounded-2xl relative overflow-hidden shadow-xl">
-                <div class="flex items-center justify-between mb-2">
-                    <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">Current Streak</span>
-                    <i class="fa-solid fa-fire text-orange-500 text-sm"></i>
-                </div>
-                <div class="flex items-baseline gap-1">
-                    <span id="streak-count" class="text-2xl font-black text-white">0</span>
-                    <span class="text-xs text-slate-400 font-medium">Days</span>
-                </div>
-                <p id="streak-status" class="text-[10px] text-slate-400 mt-2 font-medium">Keep hitting 100 daily!</p>
-            </div>
-        </div>
-
-        <!-- Selected Day Progress Tracker Block -->
-        <div class="bg-slate-900/90 border border-slate-800 p-5 rounded-3xl shadow-xl flex flex-col gap-4 relative">
-            <div class="flex justify-between items-center">
-                <div>
-                    <h2 class="text-xs font-bold uppercase tracking-wider text-slate-400">Day Progress</h2>
-                    <p id="selected-date-label" class="text-sm font-semibold text-emerald-400 mt-0.5">Today</p>
-                </div>
-                <div class="text-right">
-                    <span id="today-total" class="text-3xl font-black text-white">0</span>
-                    <span class="text-sm font-bold text-slate-400">/ 100</span>
-                </div>
-            </div>
-
-            <!-- Progress Circle / Bar -->
-            <div class="relative w-full bg-slate-800/80 rounded-2xl h-4 overflow-hidden border border-slate-700/50">
-                <div id="today-bar" class="h-full bg-gradient-to-r from-emerald-500 to-teal-300 rounded-2xl transition-all duration-300 shadow-lg shadow-emerald-500/50" style="width: 0%"></div>
-            </div>
-
-            <!-- Quick Add Set Controls -->
-            <div class="flex flex-col gap-2 mt-1">
-                <span class="text-xs font-medium text-slate-400">Log Completed Set</span>
-                <div class="grid grid-cols-4 gap-2">
-                    <button onclick="addQuickSet(10)" class="py-2.5 bg-slate-800 hover:bg-slate-700 active:scale-95 border border-slate-700 rounded-xl font-bold text-sm text-slate-200 transition">
-                        +10
-                    </button>
-                    <button onclick="addQuickSet(20)" class="py-2.5 bg-slate-800 hover:bg-slate-700 active:scale-95 border border-slate-700 rounded-xl font-bold text-sm text-slate-200 transition">
-                        +20
-                    </button>
-                    <button onclick="addQuickSet(25)" class="py-2.5 bg-slate-800 hover:bg-slate-700 active:scale-95 border border-slate-700 rounded-xl font-bold text-sm text-slate-200 transition">
-                        +25
-                    </button>
-                    <button onclick="addQuickSet(30)" class="py-2.5 bg-slate-800 hover:bg-slate-700 active:scale-95 border border-slate-700 rounded-xl font-bold text-sm text-slate-200 transition">
-                        +30
-                    </button>
-                </div>
-
-                <!-- Custom Input Form -->
-                <form id="custom-set-form" class="flex gap-2 mt-1">
-                    <input type="number" id="custom-count" placeholder="Custom count (e.g. 15)" min="1" max="500" required
-                        class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition">
-                    <button type="submit" class="bg-emerald-500 hover:bg-emerald-600 active:scale-95 text-slate-950 font-bold px-5 py-2.5 rounded-xl text-sm transition flex items-center justify-center gap-1 shadow-md shadow-emerald-500/20">
-                        <i class="fa-solid fa-plus"></i> Add
-                    </button>
-                </form>
-            </div>
-        </div>
-
-        <!-- Selected Day's Log Details -->
-        <div class="bg-slate-900/90 border border-slate-800 p-4 rounded-2xl shadow-xl flex flex-col gap-3">
-            <div class="flex justify-between items-center">
-                <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Completed Sets (<span id="set-count-badge">0</span>)</h3>
-                <span class="text-[11px] text-slate-500">Tap trash icon to remove set</span>
-            </div>
-            
-            <div id="sets-container" class="max-h-36 overflow-y-auto custom-scrollbar flex flex-col gap-2">
-                <!-- Log entries will be rendered here dynamically -->
-            </div>
-        </div>
-
-        <!-- November Interactive Calendar Grid -->
-        <div class="bg-slate-900/90 border border-slate-800 p-5 rounded-3xl shadow-xl flex flex-col gap-3">
-            <div class="flex justify-between items-center mb-1">
-                <h2 class="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
-                    <i class="fa-regular fa-calendar-days text-emerald-400"></i> November Calendar
-                </h2>
-                <div class="flex items-center gap-3 text-[11px] text-slate-400">
-                    <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> 100+</span>
-                    <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span> Partial</span>
-                </div>
-            </div>
-
-            <!-- Calendar Days Header -->
-            <div class="grid grid-cols-7 text-center font-semibold text-xs text-slate-500 mb-1">
-                <div>Sun</div>
-                <div>Mon</div>
-                <div>Tue</div>
-                <div>Wed</div>
-                <div>Thu</div>
-                <div>Fri</div>
-                <div>Sat</div>
-            </div>
-
-            <!-- Calendar Days Grid -->
-            <div id="calendar-grid" class="grid grid-cols-7 gap-1.5">
-                <!-- Days will be rendered by JS -->
-            </div>
-        </div>
-
-        <!-- File Storage & Sync Section -->
-        <div class="bg-slate-900/90 border border-slate-800 p-5 rounded-3xl shadow-xl flex flex-col gap-3">
-            <div class="flex justify-between items-center">
-                <div>
-                    <h2 class="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
-                        <i class="fa-solid fa-cloud-arrow-up text-sky-400"></i> File Sync & Backup
-                    </h2>
-                    <p class="text-xs text-slate-400 mt-0.5">Export data to file or import onto another device.</p>
-                </div>
-            </div>
-            <div class="grid grid-cols-2 gap-2 mt-1">
-                <button onclick="exportJSONData()" class="py-2.5 bg-slate-800 hover:bg-slate-700 active:scale-95 border border-slate-700 rounded-xl font-bold text-xs text-slate-200 transition flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-download text-sky-400"></i> Export to File
-                </button>
-                <label class="py-2.5 bg-slate-800 hover:bg-slate-700 active:scale-95 border border-slate-700 rounded-xl font-bold text-xs text-slate-200 transition flex items-center justify-center gap-2 cursor-pointer">
-                    <i class="fa-solid fa-upload text-emerald-400"></i> Import File
-                    <input type="file" id="json-file-input" accept=".json" onchange="importJSONData(event)" class="hidden">
-                </label>
-            </div>
-        </div>
-
-    </main>
-
-    <!-- Custom Reset Modal -->
-    <div id="confirm-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 max-w-xs w-full flex flex-col gap-4 shadow-2xl">
-            <div class="flex items-center gap-3 text-rose-400">
-                <i class="fa-solid fa-triangle-exclamation text-2xl"></i>
-                <h3 class="font-bold text-lg text-white">Reset All Progress?</h3>
-            </div>
-            <p class="text-xs text-slate-400">This will delete all logged push-up sets for November. This action cannot be undone.</p>
-            <div class="flex gap-2">
-                <button id="cancel-reset" class="flex-1 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-sm rounded-xl transition">Cancel</button>
-                <button id="confirm-reset" class="flex-1 py-2 bg-rose-600 hover:bg-rose-700 text-white font-semibold text-sm rounded-xl transition">Reset</button>
-            </div>
-        </div>
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-value" id="monthTotalReps">0</div>
+      <div class="stat-label" id="monthTotalLabel">Month Reps</div>
     </div>
+    <div class="stat-card">
+      <div class="stat-value" id="monthRemainingReps">0</div>
+      <div class="stat-label">Month Remaining</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="selectedDayReps">0 / 100</div>
+      <div class="stat-label" id="selectedDayLabel">Selected Day</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="streakCount">0</div>
+      <div class="stat-label">Day Streak (Target+)</div>
+    </div>
+  </div>
 
-    <!-- JavaScript Logic -->
-    <script>
-        // Data Key
-        const STORAGE_KEY = 'nov_pushup_challenge_2026';
-        let trackerData = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
-        
-        // Default selected date: today (Formatted YYYY-MM-DD)
-        let selectedDate = getFormattedDate(new Date());
+  <div class="card">
+    <div style="font-weight: 700; margin-bottom: 8px;" id="loggingTitle">Log Reps</div>
+    <div class="quick-add">
+      <button type="button" onclick="addReps(10)">+10</button>
+      <button type="button" onclick="addReps(20)">+20</button>
+      <button type="button" onclick="addReps(25)">+25</button>
+      <button type="button" onclick="addReps(30)">+30</button>
+    </div>
+    <div class="custom-input-group">
+      <input type="number" id="customAmount" placeholder="Custom amount" min="1" />
+      <button type="button" onclick="addCustomReps()">Add</button>
+    </div>
+  </div>
 
-        // DOM Element Refs
-        const calendarGrid = document.getElementById('calendar-grid');
-        const todayTotalEl = document.getElementById('today-total');
-        const todayBarEl = document.getElementById('today-bar');
-        const monthlyTotalEl = document.getElementById('monthly-total');
-        const monthlyBarEl = document.getElementById('monthly-bar');
-        const remainingTotalText = document.getElementById('remaining-total-text');
-        const streakCountEl = document.getElementById('streak-count');
-        const streakStatusEl = document.getElementById('streak-status');
-        const selectedDateLabel = document.getElementById('selected-date-label');
-        const setsContainer = document.getElementById('sets-container');
-        const setCountBadge = document.getElementById('set-count-badge');
-        const customSetForm = document.getElementById('custom-set-form');
-        const customCountInput = document.getElementById('custom-count');
-        const resetBtn = document.getElementById('reset-btn');
-        const confirmModal = document.getElementById('confirm-modal');
-        const cancelResetBtn = document.getElementById('cancel-reset');
-        const confirmResetBtn = document.getElementById('confirm-reset');
-        
-        // Pace calculation refs
-        const paceTargetCountEl = document.getElementById('pace-target-count');
-        const paceTargetTextEl = document.getElementById('pace-target-text');
-        const remainingDaysTagEl = document.getElementById('remaining-days-tag');
+  <div class="card" id="calendarCard">
+    <div class="calendar-header">
+      <div class="calendar-nav-group">
+        <button type="button" class="calendar-nav-btn" onclick="changeMonth(-1)">&lt; Prev</button>
+      </div>
+      <div class="calendar-title-wrap">
+        <div style="font-weight: 700;" id="calendarMonthTitle">Month Year</div>
+        <div class="subtitle">Swipe left/right on calendar to change month</div>
+      </div>
+      <div class="calendar-nav-group">
+        <button type="button" class="calendar-nav-btn" onclick="goToToday()">Today</button>
+        <button type="button" class="calendar-nav-btn" onclick="changeMonth(1)">Next &gt;</button>
+      </div>
+    </div>
+    <div class="calendar-grid" id="calendarGrid"></div>
+  </div>
 
-        // Helper: Format Date to YYYY-MM-DD
-        function getFormattedDate(d) {
-            const year = d.getFullYear();
-            const month = String(d.getMonth() + 1).padStart(2, '0');
-            const day = String(d.getDate()).padStart(2, '0');
-            return `${year}-${month}-${day}`;
+  <div class="card">
+    <div style="font-weight: 700;" id="historyTitle">Day Logs</div>
+    <div class="logs-list" id="logsList"></div>
+  </div>
+
+  <div class="card">
+    <div style="font-weight: 700; margin-bottom: 4px;">JSON Backup &amp; Data Sync</div>
+    <div class="subtitle">Export or import your workout history as JSON</div>
+    <div class="file-actions">
+      <button type="button" class="btn-secondary" onclick="exportJsonBackup()">Export JSON Backup</button>
+      <label class="btn-secondary">
+        Import JSON Backup
+        <input type="file" id="importInput" accept=".json" onchange="importJsonBackup(event)" />
+      </label>
+    </div>
+  </div>
+
+  <div class="modal-overlay hidden" id="addExerciseModal">
+    <div class="modal-box">
+      <div style="font-weight: 700; font-size: 1.05rem;">Add New Exercise</div>
+      <div class="field-group">
+        <label for="newExerciseName">Exercise Name</label>
+        <input type="text" id="newExerciseName" placeholder="e.g. Pull-ups, Squats, Sit-ups" />
+      </div>
+      <div class="field-group">
+        <label for="newExerciseTarget">Daily Target Reps</label>
+        <input type="number" id="newExerciseTarget" value="100" min="1" />
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn-secondary" onclick="closeExerciseModal()">Cancel</button>
+        <button type="button" onclick="saveNewExercise()">Save Exercise</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = "fitness_multi_tracker_v1";
+    const LEGACY_STORAGE_KEY = "nov_pushup_logs_2026";
+    const BASELINE_PUSHUPS = [
+      {"id": 1794413007082, "date": "2026-11-01", "amount": 50, "timestamp": "16:03"},
+      {"id": 1794413011489, "date": "2026-11-02", "amount": 50, "timestamp": "16:03"},
+      {"id": 1794413020175, "date": "2026-11-03", "amount": 55, "timestamp": "16:03"},
+      {"id": 1794413025031, "date": "2026-11-04", "amount": 10, "timestamp": "16:03"},
+      {"id": 1794425935105, "date": "2026-11-09", "amount": 1, "timestamp": "19:38"},
+      {"id": 1794425900256, "date": "2026-11-11", "amount": 25, "timestamp": "19:38"}
+    ];
+
+    function pad2(n) {
+      return String(n).padStart(2, "0");
+    }
+
+    function formatDateKey(year, monthIndex, day) {
+      return `${year}-${pad2(monthIndex + 1)}-${pad2(day)}`;
+    }
+
+    function getTodayDateKey() {
+      const now = new Date();
+      return formatDateKey(now.getFullYear(), now.getMonth(), now.getDate());
+    }
+
+    function createDefaultState() {
+      return {
+        activeExerciseId: "pushups",
+        exercises: [
+          { id: "pushups", name: "Push-ups", dailyTarget: 100 }
+        ],
+        logs: {
+          pushups: BASELINE_PUSHUPS.slice()
         }
+      };
+    }
 
-        // Initialize Application
-        function initApp() {
-            renderCalendar();
-            renderSelectedDayData();
-            updateMonthlyStats();
-            setupEventListeners();
-        }
-
-        // Event Listeners setup
-        function setupEventListeners() {
-            customSetForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                const count = parseInt(customCountInput.value);
-                if (count > 0) {
-                    addPushUpSet(count);
-                    customCountInput.value = '';
-                }
-            });
-
-            resetBtn.addEventListener('click', () => {
-                confirmModal.classList.remove('hidden');
-            });
-
-            cancelResetBtn.addEventListener('click', () => {
-                confirmModal.classList.add('hidden');
-            });
-
-            confirmResetBtn.addEventListener('click', () => {
-                trackerData = {};
-                saveData();
-                confirmModal.classList.add('hidden');
-                updateAllUI();
-            });
-        }
-
-        // Save to Local Storage
-        function saveData() {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(trackerData));
-        }
-
-        // Add a push-up set
-        function addQuickSet(count) {
-            addPushUpSet(count);
-        }
-
-        function addPushUpSet(count) {
-            if (!trackerData[selectedDate]) {
-                trackerData[selectedDate] = [];
-            }
-
-            const previousTotal = getDayTotal(selectedDate);
-            
-            const newSet = {
-                id: Date.now().toString(),
-                count: count,
-                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    function migrateLegacyLogs(rawLogs) {
+      if (!Array.isArray(rawLogs)) return [];
+      return rawLogs
+        .map((item, idx) => {
+          if (item.date) {
+            return {
+              id: Number(item.id) || Date.now() + idx,
+              date: item.date,
+              amount: Number(item.amount ?? item.count ?? 0),
+              timestamp: item.timestamp || item.time || "00:00"
             };
+          }
+          const day = Number(item.day || 1);
+          return {
+            id: Number(item.id) || Date.now() + idx,
+            date: `2026-11-${pad2(Math.min(Math.max(day, 1), 30))}`,
+            amount: Number(item.amount ?? item.count ?? 0),
+            timestamp: item.timestamp || item.time || "00:00"
+          };
+        })
+        .filter((x) => x.amount > 0);
+    }
 
-            trackerData[selectedDate].push(newSet);
-            saveData();
-            
-            const newTotal = getDayTotal(selectedDate);
-
-            // Trigger confetti if daily goal hit (100) for the first time today
-            if (previousTotal < 100 && newTotal >= 100) {
-                triggerConfetti();
-            }
-
-            updateAllUI();
-        }
-
-        // Delete specific set
-        function deleteSet(setId) {
-            if (!trackerData[selectedDate]) return;
-
-            trackerData[selectedDate] = trackerData[selectedDate].filter(s => s.id !== setId);
-            if (trackerData[selectedDate].length === 0) {
-                delete trackerData[selectedDate];
-            }
-            saveData();
-            updateAllUI();
-        }
-
-        // Calculate Total for specific day
-        function getDayTotal(dateStr) {
-            if (!trackerData[dateStr]) return 0;
-            return trackerData[dateStr].reduce((sum, set) => sum + set.count, 0);
-        }
-
-        // Render Calendar Grid for November (30 Days)
-        function renderCalendar() {
-            calendarGrid.innerHTML = '';
-            
-            const year = new Date().getFullYear();
-            const novFirst = new Date(year, 10, 1); // Nov is Month index 10
-            const startingDayOfWeek = novFirst.getDay(); // 0 (Sun) - 6 (Sat)
-            const todayStr = getFormattedDate(new Date());
-
-            // Render Empty slots for start of week padding
-            for (let i = 0; i < startingDayOfWeek; i++) {
-                const emptyCell = document.createElement('div');
-                emptyCell.className = 'h-11 rounded-xl bg-slate-900/40 opacity-20';
-                calendarGrid.appendChild(emptyCell);
-            }
-
-            // Render 30 Days of November
-            for (let day = 1; day <= 30; day++) {
-                const dayStr = `${year}-11-${String(day).padStart(2, '0')}`;
-                const total = getDayTotal(dayStr);
-                const isSelected = dayStr === selectedDate;
-                const isToday = dayStr === todayStr;
-
-                const dayCard = document.createElement('button');
-                dayCard.onclick = () => selectDate(dayStr);
-                
-                // Base styling
-                let bgClass = 'bg-slate-950 border-slate-800 text-slate-300';
-                let indicatorColor = '';
-
-                if (total >= 100) {
-                    bgClass = 'bg-emerald-950/60 border-emerald-500/40 text-emerald-300';
-                    indicatorColor = 'bg-emerald-500';
-                } else if (total > 0) {
-                    bgClass = 'bg-amber-950/40 border-amber-500/30 text-amber-300';
-                    indicatorColor = 'bg-amber-500';
-                }
-
-                if (isSelected) {
-                    bgClass += ' ring-2 ring-emerald-400 ring-offset-2 ring-offset-slate-950';
-                }
-
-                dayCard.className = `h-11 rounded-xl border flex flex-col items-center justify-between p-1 relative transition-all active:scale-95 ${bgClass}`;
-
-                dayCard.innerHTML = `
-                    <div class="w-full flex justify-between items-center px-1">
-                        <span class="text-[11px] font-bold ${isToday ? 'text-emerald-400 font-extrabold' : ''}">${day}</span>
-                        ${total > 0 ? `<span class="w-1.5 h-1.5 rounded-full ${indicatorColor}"></span>` : ''}
-                    </div>
-                    <span class="text-[10px] font-semibold opacity-90">${total > 0 ? total : ''}</span>
-                `;
-
-                calendarGrid.appendChild(dayCard);
-            }
-        }
-
-        // Select Date handler
-        function selectDate(dateStr) {
-            selectedDate = dateStr;
-            updateAllUI();
-        }
-
-        // Render data for currently selected day
-        function renderSelectedDayData() {
-            const todayStr = getFormattedDate(new Date());
-            
-            if (selectedDate === todayStr) {
-                selectedDateLabel.innerText = "Today";
-            } else {
-                const d = new Date(selectedDate + 'T00:00:00');
-                selectedDateLabel.innerText = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-            }
-
-            const total = getDayTotal(selectedDate);
-            todayTotalEl.innerText = total;
-
-            // Update Progress Bar
-            const percentage = Math.min(Math.round((total / 100) * 100), 100);
-            todayBarEl.style.width = `${percentage}%`;
-
-            // Render Sets Log
-            const sets = trackerData[selectedDate] || [];
-            setCountBadge.innerText = sets.length;
-
-            if (sets.length === 0) {
-                setsContainer.innerHTML = `
-                    <div class="text-center py-6 text-xs text-slate-500 font-medium">
-                        No sets logged for this date.
-                    </div>
-                `;
-            } else {
-                setsContainer.innerHTML = sets.slice().reverse().map(set => `
-                    <div class="flex items-center justify-between bg-slate-950 border border-slate-800/80 px-3 py-2 rounded-xl">
-                        <div class="flex items-center gap-3">
-                            <span class="font-extrabold text-sm text-emerald-400">+${set.count}</span>
-                            <span class="text-xs text-slate-400 font-medium">push-ups</span>
-                        </div>
-                        <div class="flex items-center gap-3">
-                            <span class="text-[11px] text-slate-500 font-mono">${set.time}</span>
-                            <button onclick="deleteSet('${set.id}')" class="text-slate-500 hover:text-rose-400 p-1 transition">
-                                <i class="fa-solid fa-trash-can text-xs"></i>
-                            </button>
-                        </div>
-                    </div>
-                `).join('');
-            }
-        }
-
-        // Calculate Monthly Overall Stats and Streaks
-        function updateMonthlyStats() {
-            let totalPushups = 0;
-            const year = new Date().getFullYear();
-
-            // Calculate overall total for November
-            for (let day = 1; day <= 30; day++) {
-                const dayStr = `${year}-11-${String(day).padStart(2, '0')}`;
-                totalPushups += getDayTotal(dayStr);
-            }
-
-            monthlyTotalEl.innerText = totalPushups;
-            const remainingPushups = Math.max(0, 3000 - totalPushups);
-            remainingTotalText.innerText = `${remainingPushups.toLocaleString()} push-ups remaining`;
-
-            const monthlyPercentage = Math.min(Math.round((totalPushups / 3000) * 100), 100);
-            monthlyBarEl.style.width = `${monthlyPercentage}%`;
-
-            // Calculate Dynamic Pace Target
-            const now = new Date();
-            const todayDayNum = now.getDate(); // 1-30
-            // Remaining days in November including today
-            const remainingDays = Math.max(1, 30 - todayDayNum + 1);
-            remainingDaysTagEl.innerText = `${remainingDays} ${remainingDays === 1 ? 'day' : 'days'} left`;
-
-            if (remainingPushups <= 0) {
-                paceTargetTextEl.innerHTML = `<span class="text-emerald-400 font-extrabold">Challenge Complete! 🎉</span> You reached 3,000 push-ups!`;
-            } else {
-                const requiredPace = Math.ceil(remainingPushups / remainingDays);
-                paceTargetCountEl.innerText = requiredPace;
-            }
-
-            // Calculate Streak (Consecutive days >= 100)
-            let streak = 0;
-            const today = new Date();
-            let checkDate = new Date(today);
-
-            while (true) {
-                const dateStr = getFormattedDate(checkDate);
-                const dayTotal = getDayTotal(dateStr);
-
-                if (dayTotal >= 100) {
-                    streak++;
-                    checkDate.setDate(checkDate.getDate() - 1);
-                } else {
-                    // Check if today is incomplete yet, allow previous days to maintain streak
-                    if (dateStr === getFormattedDate(today)) {
-                        checkDate.setDate(checkDate.getDate() - 1);
-                        continue;
-                    }
-                    break;
-                }
-            }
-
-            streakCountEl.innerText = streak;
-            streakStatusEl.innerText = streak > 0 ? `${streak} day streak! Keep it going!` : 'Hit 100 push-ups to start streak!';
-        }
-
-        // Export data to JSON file
-        function exportJSONData() {
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(trackerData, null, 2));
-            const anchor = document.createElement('a');
-            anchor.setAttribute("href", dataStr);
-            anchor.setAttribute("download", `pushups_nov_backup_${getFormattedDate(new Date())}.json`);
-            document.body.appendChild(anchor);
-            anchor.click();
-            anchor.remove();
-        }
-
-        // Import data from JSON file
-        function importJSONData(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const importedData = JSON.parse(e.target.result);
-                    if (typeof importedData === 'object' && importedData !== null) {
-                        trackerData = importedData;
-                        saveData();
-                        updateAllUI();
-                        alert('Data successfully imported from file!');
-                    } else {
-                        alert('Invalid data file structure.');
-                    }
-                } catch (err) {
-                    alert('Failed to parse file. Make sure it is a valid .json file.');
-                }
+    function loadState() {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (parsed && Array.isArray(parsed.exercises) && parsed.exercises.length > 0 && parsed.logs) {
+            const activeExists = parsed.exercises.some((e) => e.id === parsed.activeExerciseId);
+            return {
+              activeExerciseId: activeExists ? parsed.activeExerciseId : parsed.exercises[0].id,
+              exercises: parsed.exercises,
+              logs: parsed.logs
             };
-            reader.readAsText(file);
+          }
         }
+      } catch (err) {}
 
-        // Master UI update function
-        function updateAllUI() {
-            renderCalendar();
-            renderSelectedDayData();
-            updateMonthlyStats();
+      const base = createDefaultState();
+      try {
+        const legacy = localStorage.getItem(LEGACY_STORAGE_KEY);
+        if (legacy) {
+          const migrated = migrateLegacyLogs(JSON.parse(legacy));
+          if (migrated.length > 0) {
+            base.logs.pushups = migrated;
+          }
         }
+      } catch (err) {}
 
-        // Confetti Celebration
-        function triggerConfetti() {
-            if (typeof confetti === 'function') {
-                confetti({
-                    particleCount: 80,
-                    spread: 60,
-                    origin: { y: 0.7 }
+      return base;
+    }
+
+    let state = loadState();
+    const nowInit = new Date();
+    let viewYear = nowInit.getFullYear();
+    let viewMonth = nowInit.getMonth();
+    let selectedDate = getTodayDateKey();
+
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      render();
+    }
+
+    function getActiveExercise() {
+      return state.exercises.find((e) => e.id === state.activeExerciseId) || state.exercises[0];
+    }
+
+    function getExerciseLogs(exId) {
+      if (!Array.isArray(state.logs[exId])) {
+        state.logs[exId] = [];
+      }
+      return state.logs[exId];
+    }
+
+    function selectExercise(exId) {
+      state.activeExerciseId = exId;
+      saveState();
+    }
+
+    function openExerciseModal() {
+      document.getElementById("newExerciseName").value = "";
+      document.getElementById("newExerciseTarget").value = "100";
+      document.getElementById("addExerciseModal").classList.remove("hidden");
+      document.getElementById("newExerciseName").focus();
+    }
+
+    function closeExerciseModal() {
+      document.getElementById("addExerciseModal").classList.add("hidden");
+    }
+
+    function saveNewExercise() {
+      const nameInput = document.getElementById("newExerciseName");
+      const targetInput = document.getElementById("newExerciseTarget");
+      const name = nameInput.value.trim();
+      const target = parseInt(targetInput.value, 10);
+
+      if (!name) {
+        alert("Please enter an exercise name.");
+        return;
+      }
+      const safeTarget = target > 0 ? target : 50;
+      const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, "_") + "_" + Date.now().toString().slice(-4);
+
+      state.exercises.push({
+        id: slug,
+        name,
+        dailyTarget: safeTarget
+      });
+      state.logs[slug] = [];
+      state.activeExerciseId = slug;
+      closeExerciseModal();
+      saveState();
+    }
+
+    function deleteExercise(event, exId) {
+      event.stopPropagation();
+      if (state.exercises.length <= 1) {
+        alert("Keep at least one exercise.");
+        return;
+      }
+      const ex = state.exercises.find((e) => e.id === exId);
+      if (!confirm(`Delete "${ex ? ex.name : exId}" and its logs?`)) return;
+      state.exercises = state.exercises.filter((e) => e.id !== exId);
+      delete state.logs[exId];
+      if (state.activeExerciseId === exId) {
+        state.activeExerciseId = state.exercises[0].id;
+      }
+      saveState();
+    }
+
+    function addReps(amount) {
+      const num = parseInt(amount, 10);
+      if (!num || num <= 0) return;
+      const ex = getActiveExercise();
+      const list = getExerciseLogs(ex.id);
+      list.push({
+        id: Date.now() + Math.floor(Math.random() * 1000),
+        date: selectedDate,
+        amount: num,
+        timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+      });
+      saveState();
+    }
+
+    function addCustomReps() {
+      const input = document.getElementById("customAmount");
+      const val = parseInt(input.value, 10);
+      if (val > 0) {
+        addReps(val);
+        input.value = "";
+      }
+    }
+
+    function deleteLog(logId) {
+      const ex = getActiveExercise();
+      state.logs[ex.id] = getExerciseLogs(ex.id).filter((l) => l.id !== logId);
+      saveState();
+    }
+
+    function getRepsForDate(exId, dateKey) {
+      return getExerciseLogs(exId)
+        .filter((l) => l.date === dateKey)
+        .reduce((sum, l) => sum + Number(l.amount || 0), 0);
+    }
+
+    function getMonthTotal(exId, year, monthIndex) {
+      const prefix = `${year}-${pad2(monthIndex + 1)}-`;
+      return getExerciseLogs(exId)
+        .filter((l) => l.date.startsWith(prefix))
+        .reduce((sum, l) => sum + Number(l.amount || 0), 0);
+    }
+
+    function calculateStreak(exId, target) {
+      const now = new Date();
+      let streak = 0;
+      const cursor = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      for (let i = 0; i < 365; i++) {
+        const key = formatDateKey(cursor.getFullYear(), cursor.getMonth(), cursor.getDate());
+        const reps = getRepsForDate(exId, key);
+        if (reps >= target) {
+          streak++;
+        } else if (i > 0) {
+          break;
+        }
+        cursor.setDate(cursor.getDate() - 1);
+      }
+      return streak;
+    }
+
+    function changeMonth(delta) {
+      const d = new Date(viewYear, viewMonth + delta, 1);
+      viewYear = d.getFullYear();
+      viewMonth = d.getMonth();
+      render();
+    }
+
+    function goToToday() {
+      const now = new Date();
+      viewYear = now.getFullYear();
+      viewMonth = now.getMonth();
+      selectedDate = getTodayDateKey();
+      render();
+    }
+
+    function render() {
+      const ex = getActiveExercise();
+      const target = Number(ex.dailyTarget) || 100;
+      const daysInViewMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
+      const monthGoal = daysInViewMonth * target;
+      const monthReps = getMonthTotal(ex.id, viewYear, viewMonth);
+      const monthRemaining = Math.max(0, monthGoal - monthReps);
+
+      const now = new Date();
+      const isViewingCurrentMonth = (viewYear === now.getFullYear() && viewMonth === now.getMonth());
+      const remainingDaysInMonth = isViewingCurrentMonth
+        ? Math.max(1, daysInViewMonth - now.getDate() + 1)
+        : daysInViewMonth;
+      const dailyPace = Math.ceil(monthRemaining / remainingDaysInMonth);
+
+      const barEl = document.getElementById("exerciseBar");
+      barEl.innerHTML = "";
+      state.exercises.forEach((item) => {
+        const pill = document.createElement("button");
+        pill.type = "button";
+        pill.className = `exercise-pill ${item.id === ex.id ? "active" : ""}`;
+        pill.onclick = () => selectExercise(item.id);
+        pill.innerHTML = `<span>${item.name} (${item.dailyTarget}/d)</span>`;
+        if (state.exercises.length > 1) {
+          const del = document.createElement("span");
+          del.className = "del-ex";
+          del.textContent = "×";
+          del.title = "Remove exercise";
+          del.onclick = (ev) => deleteExercise(ev, item.id);
+          pill.appendChild(del);
+        }
+        barEl.appendChild(pill);
+      });
+
+      const addBtn = document.createElement("button");
+      addBtn.type = "button";
+      addBtn.className = "exercise-pill add-ex-btn";
+      addBtn.textContent = "+ Add Exercise";
+      addBtn.onclick = openExerciseModal;
+      barEl.appendChild(addBtn);
+
+      const monthName = new Date(viewYear, viewMonth, 1).toLocaleString("en-GB", { month: "long", year: "numeric" });
+      document.getElementById("paceLabel").textContent = `${ex.name} Pace Target (${monthName})`;
+      document.getElementById("paceTarget").textContent = dailyPace;
+      document.getElementById("paceSubtitle").textContent =
+        `reps/day over ${remainingDaysInMonth} day(s) to hit ${monthGoal.toLocaleString()} monthly goal`;
+
+      document.getElementById("monthTotalReps").textContent = monthReps.toLocaleString();
+      document.getElementById("monthTotalLabel").textContent = `${new Date(viewYear, viewMonth, 1).toLocaleString("en-GB", { month: "short" })} Reps`;
+      document.getElementById("monthRemainingReps").textContent = monthRemaining.toLocaleString();
+
+      const dayReps = getRepsForDate(ex.id, selectedDate);
+      document.getElementById("selectedDayReps").textContent = `${dayReps} / ${target}`;
+      document.getElementById("selectedDayLabel").textContent = `${selectedDate} Progress`;
+      document.getElementById("streakCount").textContent = calculateStreak(ex.id, target);
+
+      document.getElementById("loggingTitle").textContent = `Log ${ex.name} (${selectedDate})`;
+      document.getElementById("historyTitle").textContent = `${ex.name} Logs — ${selectedDate}`;
+      document.getElementById("calendarMonthTitle").textContent = monthName;
+
+      const gridEl = document.getElementById("calendarGrid");
+      gridEl.innerHTML = "";
+      const weekdays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+      weekdays.forEach((wd) => {
+        const wh = document.createElement("div");
+        wh.className = "weekday-header";
+        wh.textContent = wd;
+        gridEl.appendChild(wh);
+      });
+
+      const firstDayJs = new Date(viewYear, viewMonth, 1).getDay();
+      const leadingBlanks = (firstDayJs + 6) % 7;
+      for (let b = 0; b < leadingBlanks; b++) {
+        const blank = document.createElement("div");
+        blank.className = "day-cell empty";
+        gridEl.appendChild(blank);
+      }
+
+      for (let d = 1; d <= daysInViewMonth; d++) {
+        const key = formatDateKey(viewYear, viewMonth, d);
+        const reps = getRepsForDate(ex.id, key);
+        const cell = document.createElement("div");
+        let statusClass = "";
+        if (reps >= target) statusClass = "complete";
+        else if (reps > 0) statusClass = "partial";
+        const selectedClass = key === selectedDate ? "selected" : "";
+        cell.className = `day-cell ${statusClass} ${selectedClass}`;
+        cell.onclick = () => {
+          selectedDate = key;
+          render();
+        };
+        cell.innerHTML = `<span class="day-num">${d}</span><span class="day-count">${reps}</span>`;
+        gridEl.appendChild(cell);
+      }
+
+      const logsEl = document.getElementById("logsList");
+      logsEl.innerHTML = "";
+      const dayLogs = getExerciseLogs(ex.id).filter((l) => l.date === selectedDate);
+      if (dayLogs.length === 0) {
+        logsEl.innerHTML = '<div style="color: var(--text-muted); font-size: 0.85rem; padding: 6px 0;">No logs for this date yet.</div>';
+      } else {
+        dayLogs.forEach((l) => {
+          const row = document.createElement("div");
+          row.className = "log-item";
+          row.innerHTML = `
+            <span>+${l.amount} ${ex.name.toLowerCase()} <small style="color: var(--text-muted);">(${l.timestamp})</small></span>
+            <button type="button" class="btn-delete" onclick="deleteLog(${l.id})">Delete</button>
+          `;
+          logsEl.appendChild(row);
+        });
+      }
+    }
+
+    (function setupSwipe() {
+      const calCard = document.getElementById("calendarCard");
+      let touchStartX = 0;
+      let touchStartY = 0;
+
+      calCard.addEventListener("touchstart", (e) => {
+        if (!e.touches || e.touches.length === 0) return;
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+      }, { passive: true });
+
+      calCard.addEventListener("touchend", (e) => {
+        if (!e.changedTouches || e.changedTouches.length === 0) return;
+        const dx = e.changedTouches[0].clientX - touchStartX;
+        const dy = e.changedTouches[0].clientY - touchStartY;
+        if (Math.abs(dx) > 55 && Math.abs(dx) > Math.abs(dy) * 1.4) {
+          if (dx < 0) changeMonth(1);
+          else changeMonth(-1);
+        }
+      }, { passive: true });
+    })();
+
+    function exportJsonBackup() {
+      const now = new Date();
+      const stamp = `${now.getFullYear()}-${pad2(now.getMonth() + 1)}-${pad2(now.getDate())}`;
+      const payload = {
+        exportedAt: now.toISOString(),
+        activeExerciseId: state.activeExerciseId,
+        exercises: state.exercises,
+        logs: state.logs
+      };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `fitness_tracker_backup_${stamp}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    function importJsonBackup(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const data = JSON.parse(e.target.result);
+          if (data && Array.isArray(data.exercises) && data.logs) {
+            state = {
+              activeExerciseId: data.activeExerciseId || data.exercises[0]?.id || "pushups",
+              exercises: data.exercises.length > 0 ? data.exercises : createDefaultState().exercises,
+              logs: data.logs
+            };
+            saveState();
+            alert("Backup restored!");
+          } else if (typeof data === "object" && data !== null) {
+            const imported = [];
+            Object.entries(data).forEach(([dateStr, items]) => {
+              if (Array.isArray(items)) {
+                items.forEach((it, idx) => {
+                  imported.push({
+                    id: Number(it.id) || Date.now() + idx,
+                    date: dateStr,
+                    amount: Number(it.count ?? it.amount ?? 0),
+                    timestamp: it.time || it.timestamp || "00:00"
+                  });
                 });
-            }
+              }
+            });
+            const targetEx = getActiveExercise();
+            state.logs[targetEx.id] = imported.filter((x) => x.amount > 0);
+            saveState();
+            alert(`Imported ${state.logs[targetEx.id].length} entries into ${targetEx.name}!`);
+          } else {
+            alert("Unrecognized JSON backup structure.");
+          }
+        } catch (err) {
+          alert("Could not parse JSON file.");
         }
+        event.target.value = "";
+      };
+      reader.readAsText(file);
+    }
 
-        // Run Init
-        window.onload = initApp;
-    </script>
+    render();
+  </script>
 </body>
 </html>
