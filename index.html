@@ -388,7 +388,7 @@
       <div class="stat-label">Month Remaining</div>
     </div>
     <div class="stat-card">
-      <div class="stat-value" id="selectedDayReps">0 / 100</div>
+      <div class="stat-value" id="selectedDayReps">0 / 50</div>
       <div class="stat-label" id="selectedDayLabel">Selected Day</div>
     </div>
     <div class="stat-card">
@@ -466,14 +466,7 @@
   <script>
     const STORAGE_KEY = "fitness_multi_tracker_v1";
     const LEGACY_STORAGE_KEY = "nov_pushup_logs_2026";
-    const BASELINE_PUSHUPS = [
-      {"id": 1794413007082, "date": "2026-11-01", "amount": 50, "timestamp": "16:03"},
-      {"id": 1794413011489, "date": "2026-11-02", "amount": 50, "timestamp": "16:03"},
-      {"id": 1794413020175, "date": "2026-11-03", "amount": 55, "timestamp": "16:03"},
-      {"id": 1794413025031, "date": "2026-11-04", "amount": 10, "timestamp": "16:03"},
-      {"id": 1794425935105, "date": "2026-11-09", "amount": 1, "timestamp": "19:38"},
-      {"id": 1794425900256, "date": "2026-11-11", "amount": 25, "timestamp": "19:38"}
-    ];
+    const BASELINE_PUSHUPS = [{"id": 1794413007082, "date": "2026-11-01", "amount": 50, "timestamp": "16:03"}, {"id": 1794413011489, "date": "2026-11-02", "amount": 50, "timestamp": "16:03"}, {"id": 1794413020175, "date": "2026-11-03", "amount": 55, "timestamp": "16:03"}, {"id": 1794413025031, "date": "2026-11-04", "amount": 10, "timestamp": "16:03"}, {"id": 1794425935105, "date": "2026-11-09", "amount": 1, "timestamp": "19:38"}, {"id": 1794425900256, "date": "2026-11-11", "amount": 25, "timestamp": "19:38"}];
 
     function pad2(n) {
       return String(n).padStart(2, "0");
@@ -492,7 +485,7 @@
       return {
         activeExerciseId: "pushups",
         exercises: [
-          { id: "pushups", name: "Push-ups", dailyTarget: 100 }
+          { id: "pushups", name: "Push-ups", dailyTarget: 50 }
         ],
         logs: {
           pushups: BASELINE_PUSHUPS.slice()
@@ -529,10 +522,13 @@
         if (saved) {
           const parsed = JSON.parse(saved);
           if (parsed && Array.isArray(parsed.exercises) && parsed.exercises.length > 0 && parsed.logs) {
-            const activeExists = parsed.exercises.some((e) => e.id === parsed.activeExerciseId);
+            const updatedExercises = parsed.exercises.map((e) =>
+              e.id === "pushups" ? { ...e, dailyTarget: 50 } : e
+            );
+            const activeExists = updatedExercises.some((e) => e.id === parsed.activeExerciseId);
             return {
-              activeExerciseId: activeExists ? parsed.activeExerciseId : parsed.exercises[0].id,
-              exercises: parsed.exercises,
+              activeExerciseId: activeExists ? parsed.activeExerciseId : updatedExercises[0].id,
+              exercises: updatedExercises,
               logs: parsed.logs
             };
           }
@@ -720,6 +716,7 @@
         : daysInViewMonth;
       const dailyPace = Math.ceil(monthRemaining / remainingDaysInMonth);
 
+      // Exercise pills
       const barEl = document.getElementById("exerciseBar");
       barEl.innerHTML = "";
       state.exercises.forEach((item) => {
@@ -746,6 +743,7 @@
       addBtn.onclick = openExerciseModal;
       barEl.appendChild(addBtn);
 
+      // Stats
       const monthName = new Date(viewYear, viewMonth, 1).toLocaleString("en-GB", { month: "long", year: "numeric" });
       document.getElementById("paceLabel").textContent = `${ex.name} Pace Target (${monthName})`;
       document.getElementById("paceTarget").textContent = dailyPace;
@@ -765,6 +763,7 @@
       document.getElementById("historyTitle").textContent = `${ex.name} Logs — ${selectedDate}`;
       document.getElementById("calendarMonthTitle").textContent = monthName;
 
+      // Calendar Grid (Monday start)
       const gridEl = document.getElementById("calendarGrid");
       gridEl.innerHTML = "";
       const weekdays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
@@ -800,6 +799,7 @@
         gridEl.appendChild(cell);
       }
 
+      // Logs list
       const logsEl = document.getElementById("logsList");
       logsEl.innerHTML = "";
       const dayLogs = getExerciseLogs(ex.id).filter((l) => l.date === selectedDate);
@@ -818,6 +818,7 @@
       }
     }
 
+    // Touch swipe on calendar card
     (function setupSwipe() {
       const calCard = document.getElementById("calendarCard");
       let touchStartX = 0;
@@ -868,14 +869,18 @@
         try {
           const data = JSON.parse(e.target.result);
           if (data && Array.isArray(data.exercises) && data.logs) {
+            const importedExercises = (data.exercises.length > 0 ? data.exercises : createDefaultState().exercises).map((e) =>
+              e.id === "pushups" ? { ...e, dailyTarget: 50 } : e
+            );
             state = {
-              activeExerciseId: data.activeExerciseId || data.exercises[0]?.id || "pushups",
-              exercises: data.exercises.length > 0 ? data.exercises : createDefaultState().exercises,
+              activeExerciseId: data.activeExerciseId || importedExercises[0]?.id || "pushups",
+              exercises: importedExercises,
               logs: data.logs
             };
             saveState();
             alert("Backup restored!");
           } else if (typeof data === "object" && data !== null) {
+            // Date-keyed backup compatibility (e.g., {"2026-11-01": [{"count": 50, "time": "16:03"}]} )
             const imported = [];
             Object.entries(data).forEach(([dateStr, items]) => {
               if (Array.isArray(items)) {
